@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "laundry",
+    "description": "",
+    "status": "pending",
+    "created_at": "2025-10-09T00:37:01.609974549-07:00",
+    "updated_at": "2025-10-09T00:37:01.60997483-07:00"
+  },
+  {
+    "id": 2,
+    "title": "groceries",
+    "description": "",
+    "status": "pending",
+    "created_at": "2025-10-09T00:37:02.038925152-07:00",
+    "updated_at": "2025-10-09T00:37:02.038925342-07:00"
+  },
+  {
+    "id": 3,
+    "title": "take out trash",
+    "description": "",
+    "status": "pending",
+    "created_at": "2025-10-09T00:37:02.480598095-07:00",
+    "updated_at": "2025-10-09T00:37:02.480598265-07:00"
+  }
+]

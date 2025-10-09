@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// Initialize file-based storage
-	todoStorage := storage.NewFileStorage("todos.json")
+	todoStorage := storage.NewFileStorage("/home/shubham/projects/todo_mcp/todos.json")
 
 	// Create MCP server
 	server := mcp.NewMCPServer(todoStorage)

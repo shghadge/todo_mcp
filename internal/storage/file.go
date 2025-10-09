@@ -31,14 +31,14 @@ func NewFileStorage(filePath string) *FileStorage {
 }
 
 // loadTodos loads todos from the JSON file
-func (f *FileStorage) loadTodos() (map[int]*models.Todo, int, error) {
+func (f *FileStorage) loadTodos() ([]*models.Todo, int, error) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
 
 	// Check if file exists
 	if _, err := os.Stat(f.filePath); os.IsNotExist(err) {
-		// File doesn't exist, return empty map
-		return make(map[int]*models.Todo), 1, nil
+		// File doesn't exist, return empty array
+		return []*models.Todo{}, 1, nil
 	}
 
 	// Read file
@@ -48,10 +48,10 @@ func (f *FileStorage) loadTodos() (map[int]*models.Todo, int, error) {
 	}
 
 	// Parse JSON
-	var todos map[int]*models.Todo
+	var todos []*models.Todo
 	if len(data) == 0 {
-		// Empty file, return empty map
-		return make(map[int]*models.Todo), 1, nil
+		// Empty file, return empty array
+		return []*models.Todo{}, 1, nil
 	}
 
 	if err := json.Unmarshal(data, &todos); err != nil {
@@ -60,9 +60,9 @@ func (f *FileStorage) loadTodos() (map[int]*models.Todo, int, error) {
 
 	// Find the highest ID to determine next ID
 	nextID := 1
-	for id := range todos {
-		if id >= nextID {
-			nextID = id + 1
+	for _, todo := range todos {
+		if todo.ID >= nextID {
+			nextID = todo.ID + 1
 		}
 	}
 
@@ -70,7 +70,7 @@ func (f *FileStorage) loadTodos() (map[int]*models.Todo, int, error) {
 }
 
 // saveTodos saves todos to the JSON file
-func (f *FileStorage) saveTodos(todos map[int]*models.Todo) error {
+func (f *FileStorage) saveTodos(todos []*models.Todo) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -105,7 +105,7 @@ func (f *FileStorage) Create(todo *models.Todo) error {
 	todo.CreatedAt = time.Now()
 	todo.UpdatedAt = time.Now()
 
-	todos[todo.ID] = todo
+	todos = append(todos, todo)
 
 	return f.saveTodos(todos)
 }
@@ -117,14 +117,15 @@ func (f *FileStorage) GetByID(id int) (*models.Todo, error) {
 		return nil, err
 	}
 
-	todo, exists := todos[id]
-	if !exists {
-		return nil, ErrTodoNotFound
+	for _, todo := range todos {
+		if todo.ID == id {
+			// Return a copy to avoid race conditions
+			todoCopy := *todo
+			return &todoCopy, nil
+		}
 	}
 
-	// Return a copy to avoid race conditions
-	todoCopy := *todo
-	return &todoCopy, nil
+	return nil, ErrTodoNotFound
 }
 
 // GetAll retrieves all todos
@@ -151,18 +152,19 @@ func (f *FileStorage) Update(id int, updatedTodo *models.Todo) error {
 		return err
 	}
 
-	todo, exists := todos[id]
-	if !exists {
-		return ErrTodoNotFound
+	for i, todo := range todos {
+		if todo.ID == id {
+			// Preserve original ID and CreatedAt
+			updatedTodo.ID = todo.ID
+			updatedTodo.CreatedAt = todo.CreatedAt
+			updatedTodo.UpdatedAt = time.Now()
+
+			todos[i] = updatedTodo
+			return f.saveTodos(todos)
+		}
 	}
 
-	// Preserve original ID and CreatedAt
-	updatedTodo.ID = todo.ID
-	updatedTodo.CreatedAt = todo.CreatedAt
-	updatedTodo.UpdatedAt = time.Now()
-
-	todos[id] = updatedTodo
-	return f.saveTodos(todos)
+	return ErrTodoNotFound
 }
 
 // Delete deletes a todo by its ID
@@ -172,13 +174,15 @@ func (f *FileStorage) Delete(id int) error {
 		return err
 	}
 
-	_, exists := todos[id]
-	if !exists {
-		return ErrTodoNotFound
+	for i, todo := range todos {
+		if todo.ID == id {
+			// Remove the todo from the slice
+			todos = append(todos[:i], todos[i+1:]...)
+			return f.saveTodos(todos)
+		}
 	}
 
-	delete(todos, id)
-	return f.saveTodos(todos)
+	return ErrTodoNotFound
 }
 
 // GetByStatus retrieves todos by status
