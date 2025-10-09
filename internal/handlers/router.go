@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"todo_mcp/internal/storage"
+
+	"github.com/shghadge/todo_mcp/internal/storage"
 
 	"github.com/gorilla/mux"
 )
@@ -24,6 +25,7 @@ func SetupRoutes(storage storage.TodoStorage) *mux.Router {
 	api.HandleFunc("/todos/{id:[0-9]+}", todoHandler.UpdateTodo).Methods("PUT")
 	api.HandleFunc("/todos/{id:[0-9]+}", todoHandler.DeleteTodo).Methods("DELETE")
 
+	fmt.Println("API endpoints:")
 	PrintRoutes(router)
 	return router
 }

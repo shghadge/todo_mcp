@@ -28,5 +28,11 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.vscode/
+
+# Binaries
+bin
+todo-mcp-server
+todo-server
+main
+

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"todo_mcp/internal/models"
+	"github.com/shghadge/todo_mcp/internal/models"
 )
 
 // TodoStorage defines the interface for todo storage operations

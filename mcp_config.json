@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "todo-mcp-server": {
+      "command": "./todo-mcp-server",
+      "args": [],
+      "env": {}
+    }
+  }
+}

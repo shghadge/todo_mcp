@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"todo_mcp/internal/models"
-	"todo_mcp/internal/storage"
+
+	"github.com/shghadge/todo_mcp/internal/models"
+	"github.com/shghadge/todo_mcp/internal/storage"
 
 	"github.com/gorilla/mux"
 )
